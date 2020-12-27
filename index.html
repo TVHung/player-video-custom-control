@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>HTML5 Video Player with Custom Controls</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"
+      integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ="
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="top-info">
+        HTML5 Video Player with Custom Controls
+      </div>
+      <div class="video-player">
+        <div class="video-topbar">
+          HTML5 Video Player with Custom Controls
+        </div>
+        <div class="playback-animation" id="playback-animation">
+          
+        </div>
+        <video src="video/BigBuckBunny.mp4" poster=""></video>
+        <div class="video-controls">
+          <div class="video-top-controls">
+            <div class="video-seekbar seekbar">
+              <span class="progress"></span>
+            </div>
+          </div>
+
+          <div class="video-playback-controls">
+            <button class="control-btn toggle-play-pause play">
+              <i class="fas fa-play play-icon icon" title="Play"></i>
+              <i class="fas fa-pause pause-icon icon" title="Pause"></i>
+            </button>
+            <div class="video-volume-control">
+              <button class="control-btn toggle-volume on">
+                <i class="fas fa-volume-up icon volume-on" title="Turn off"></i>
+                <i class="fas fa-volume-mute icon volume-off" title="Turn on"></i>
+              </button>
+              <div class="volume-seekbar seekbar">
+                <span class="progress"></span>
+              </div>
+            </div>
+
+            <div class="btn-group dropup">
+              <button class="control-btn playback-rate btn btn-secondary dropdown-toggle" data-toggle="dropdown" title="Setting">
+                <i class="fas fa-cog play-icon icon"></i>
+              </button>
+              <!-- <ul class="dropdown-menu">
+                <li><a href="#">HTML</a></li>
+                <li><a href="#">CSS</a></li>
+                <li><a href="#">JavaScript</a></li>
+              </ul> -->
+            </div>
+
+            <div class="video-timings">
+              <div class="start-time time">00:00:00</div>
+              /
+              <div class="end-time time">00:00:00</div>
+            </div>
+            <button class="control-btn full-screen" title="Full screen">
+              <i class="fa fa-expand icon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js"
+      integrity="sha256-jnOjDTXIPqall8M0MyTSt98JetJuZ7Yu+1Jm7hLTF7U="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      $(document).ready(function() {
+        $('.video-player').each(function(_, videoPlayer) {
+          let eleVideoObj = $(videoPlayer).find('video');                           //control video
+          let elePlayPauseBtn = $(videoPlayer).find('.toggle-play-pause');          //control button play or pause
+          let eleStartTime = $(videoPlayer).find('.start-time');                    //control time start
+          let eleEndTime = $(videoPlayer).find('.end-time');                        //control time end
+          let eleVideoSeekbar = $(videoPlayer).find('.video-seekbar');              //control seekbar video
+          let eleVideoProgress = $(eleVideoSeekbar).find('.progress');              //control seekbar progress video
+          let eleToggleVolume = $(videoPlayer).find('.toggle-volume');              //control volume on or off
+          let eleVolumeSeekbar = $(videoPlayer).find('.volume-seekbar');            //control seekbar volume
+          let eleVolumeProgress = $(eleVolumeSeekbar).find('.progress'); 
+          let elePlaybackAnimation = $(videoPlayer).find('.playback-animation');           //control seekbar progress volume
+          let eleFullScreen = $(videoPlayer).find('.full-screen');
+          let elePlaybackRate = $(videoPlayer).find('.playback-rate')
+
+          let totalDurationInSeconds = 0;                                           //sum time video
+          let currentTimeInSeconds = 0;                                             //current time video
+          let currentDuration = null;                                               //
+          let totalDuration = null;
+          let seekPercentage = 0;                                                   //persentage video
+          let volumeValue = 1;                                                      //sum persentage volume
+          let volumePercentage = 100;                                               //volume persentage in start
+
+          console.log(eleVideoObj);
+
+          //if hover in video then show control else ...
+          $(videoPlayer).hover(
+            () => $(videoPlayer).removeClass('hide-controls'),
+            () => $(videoPlayer).addClass('hide-controls')
+          );
+
+          //persentage seekbar video
+          const updateSeekbar = () => {
+            seekPercentage = getPercentage(currentTimeInSeconds, totalDurationInSeconds);
+            $(eleVideoProgress).css({
+              width: `${seekPercentage}%`
+            });
+          };
+
+          //persentage volume
+          const updateVolumebar = () => {
+            $(eleVolumeProgress).css({ width: `${volumePercentage}%` });
+          };
+
+          //total time
+          const updateTotalDuration = () => {
+            $(eleEndTime).html(
+              `${totalDuration.hours}:${totalDuration.minutes}:${totalDuration.seconds}`
+            );
+          };
+
+          //current time
+          const updateCurrentTime = () => {
+            $(eleStartTime).html(
+              `${currentDuration.hours}:${currentDuration.minutes}:${currentDuration.seconds}`
+            );
+          };
+
+          //1. update the total duration
+          eleVideoObj.on('loadeddata', () => {
+            totalDurationInSeconds = eleVideoObj['0'].duration;
+            totalDuration = calculateDuration(totalDurationInSeconds);
+            updateTotalDuration();
+            updateSeekbar();
+            updateVolumebar();
+          });
+
+          // 2. update current time
+          eleVideoObj.on('timeupdate', () => {
+            currentTimeInSeconds = eleVideoObj['0'].currentTime;
+            currentDuration = calculateDuration(currentTimeInSeconds);
+            updateCurrentTime();
+            updateSeekbar();
+          });
+          //3. update volume
+          eleVideoObj.on('volumechange', () => {
+            volumePercentage = eleVideoObj['0'].volume * 100;
+            updateVolumebar();
+          });
+
+          eleVideoObj.on('ended', () => {
+            eleVideoObj['0'].currentTime = 0;
+            $(elePlayPauseBtn)
+              .removeClass('pause')
+              .addClass('play');
+            $(videoPlayer).removeClass('hide-controls');
+          });
+          /*----------------------user events ------------------------------*/
+
+          //4. play the song
+          $(elePlayPauseBtn).on('click', () => {
+            $(elePlayPauseBtn).hasClass('play') ? eleVideoObj['0'].play(): eleVideoObj['0'].pause();
+            $(elePlayPauseBtn).toggleClass('play pause');
+          });
+
+          //5. toggle volume
+          $(eleToggleVolume).on('click', () => {
+            eleVideoObj['0'].volume = eleVideoObj['0'].volume ? 0 : volumeValue;
+            $(eleToggleVolume).toggleClass('on off');
+          });
+
+          //6. volume bar 
+          //hover
+          $(eleVolumeSeekbar).on("mouseover", function () {
+            
+          });
+          //click
+          $(eleVolumeSeekbar).on('click', e => {
+            let tempVolumePosition = e.pageX - videoPlayer.offsetLeft - eleVolumeSeekbar['0'].offsetLeft;
+            let tempVolumeValue = tempVolumePosition / eleVolumeSeekbar['0'].clientWidth;
+            volumeValue = tempVolumeValue;
+            eleVideoObj['0'].volume = tempVolumeValue.toFixed(1);
+            volumePercentage = tempVolumeValue.toFixed(1) * 100;
+            $(eleToggleVolume)
+              .addClass('on')
+              .removeClass('off');
+          });
+          //7. seekbar click
+          $(eleVideoSeekbar).on('click', e => {
+            let tempSeekPosition =
+              e.pageX - videoPlayer.offsetLeft - eleVideoSeekbar['0'].offsetLeft;
+            let tempSeekValue = tempSeekPosition / eleVideoSeekbar['0'].clientWidth;
+            eleVideoObj['0'].currentTime = tempSeekValue * totalDurationInSeconds;
+          });
+
+          //8. scroll on seekbar
+          $(eleVideoSeekbar).on('mousewheel', e => {
+            e.deltaY === 1
+              ? (eleVideoObj['0'].currentTime += 5)
+              : (eleVideoObj['0'].currentTime -= 5);
+          });
+
+          //9. scroll on volumebar
+          $(eleVolumeSeekbar).on('mousewheel', e => {
+            let tempVolumeValue = eleVideoObj['0'].volume;
+            if (e.deltaY === 1) {
+              tempVolumeValue >= 1 ? (tempVolumeValue = 1) : (tempVolumeValue += 0.1);
+            } else {
+              tempVolumeValue <= 0 ? (tempVolumeValue = 0) : (tempVolumeValue -= 0.1);
+            }
+            volumeValue = tempVolumeValue.toFixed(1);
+            eleVideoObj['0'].volume = tempVolumeValue.toFixed(1);
+            if (eleVideoObj['0'].volume === 0)
+              $(eleToggleVolume)
+                .addClass('off')
+                .removeClass('on');
+            else
+              $(eleToggleVolume)
+                .addClass('on')
+                .removeClass('off');
+          });
+
+          //10. full screen
+          $(eleFullScreen).on('click', e => {
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+            } else {
+              eleVideoObj['0'].requestFullscreen();
+            }
+          });
+          //11. touch in screen play or pause
+          $(eleVideoObj['0']).on('click', e => {
+            $(elePlayPauseBtn).hasClass('play') ? eleVideoObj['0'].play(): eleVideoObj['0'].pause();
+            $(elePlayPauseBtn).toggleClass('play pause');
+            //call function toggle icon play and pause
+            // elePlaybackAnimation.animate([
+            //   {opacity: 1, transform: "scale(1)",},
+            //   {opacity: 0, transform: "scale(1.3)",}
+            // ], {
+            //   duration: 500,
+            // });
+          });
+
+          $(elePlaybackRate).on('click', e => {
+            eleVideoObj['0'].playbackRate = 2;
+          });
+
+        });
+      });
+
+      const getPercentage = (presentTime, totalTime) => {
+        var calcPercentage = (presentTime / totalTime) * 100;
+        return parseFloat(calcPercentage.toString());
+      };
+
+      const calculateDuration = duration => {
+        var seconds = parseInt(duration % 60);
+        var minutes = parseInt((duration % 3600) / 60);
+        var hours = parseInt(duration / 3600);
+
+        return {
+          hours: pad(hours),
+          minutes: pad(minutes.toFixed()),
+          seconds: pad(seconds.toFixed())
+        };
+      };
+
+      const pad = number => {
+        if (number > -10 && number < 10) {
+          return '0' + number;
+        } else {
+          return number;
+        }
+      };
+    </script>
+    <style type="text/css">
+      @import url("https://fonts.googleapis.com/css?family=Exo:400,600&display=swap");
+      @import url("https://fonts.googleapis.com/css?family=Teko:400,600&display=swap");
+      :root {
+        --player-background: #23ce6b;
+        --player-foreGround: #edf2f4;
+        --player-controls: #106132;
+        --hover-color: #1fb860;
+        --font-family: 'Exo', sans-serif;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background-color: #c7f6db;
+      }
+
+      .container {
+        height: 100%;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: center;
+            -ms-flex-pack: center;
+                justify-content: center;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+      }
+
+      .video {
+        /***/
+      }
+
+      .video-topbar {
+        height: 40px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: center;
+            -ms-flex-pack: center;
+                justify-content: center;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+        background-color: black;
+        color: white;
+        opacity: 50%;
+        text-transform: uppercase;
+        font-weight: 600;
+        z-index: 2;
+        -webkit-transition: all ease 0.5s;
+        transition: all ease 0.5s;
+      }
+
+      .video-player {
+        max-width: 800px;
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+        font-family: var(--font-family);
+        background-color: #000000;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+        -webkit-box-pack: center;
+            -ms-flex-pack: center;
+                justify-content: center;
+        -webkit-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+      }
+
+      .video-player video {
+        max-width: 100%;
+      }
+
+      .video-controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        background-color: black;
+        opacity: 50%;
+        z-index: 2;
+        -webkit-transition: all ease 0.5s;
+        transition: all ease 0.5s;
+      }
+
+      .video-controls .icon {
+        position: absolute;
+      }
+
+      .video-controls .seekbar {
+        width: 100%;
+        height: 5px;
+        background-color: white;
+        cursor: pointer;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .video-controls .seekbar .progress {
+        background-color: red;
+        width: 0;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        -webkit-transition: all ease 0.25s;
+        transition: all ease 0.25s;
+      }
+
+      .video-controls .control-btn {
+        padding: 0;
+        height: 40px;
+        min-height: 40px;
+        min-width: 40px;
+        width: 40px;
+        position: relative;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: center;
+            -ms-flex-pack: center;
+                justify-content: center;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+        border: 0;
+        background-color: transparent;
+        color: white;
+        outline: 0;
+        cursor: pointer;
+      }
+
+      .video-controls .control-btn:hover {
+        color: var(--player-foreGround);
+        background-color: black;
+      }
+
+      .video-controls .video-playback-controls {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        height: 40px;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+      }
+
+      .video-controls .toggle-play-pause.play .pause-icon {
+        display: none;
+      }
+
+      .video-controls .toggle-play-pause.pause .play-icon {
+        display: none;
+      }
+
+      .video-controls .toggle-volume.on .volume-off {
+        display: none;
+      }
+
+      .video-controls .toggle-volume.off .volume-on {
+        display: none;
+      }
+
+      .video-controls .video-volume-control {
+        width: 100px;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+        margin-right: 4px;
+      }
+
+      .video-controls .video-timings {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        color: white;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+        -webkit-box-pack: center;
+            -ms-flex-pack: center;
+                justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        margin-left: auto;
+        padding: 0 4px;
+      }
+
+      .video-controls .video-timings .time {
+        width: 70px;
+        text-align: center;
+      }
+
+      .video-player.hide-controls .video-topbar {
+        -webkit-transform: translateY(-100%);
+                transform: translateY(-100%);
+      }
+
+      .video-player.hide-controls .video-controls {
+        -webkit-transform: translateY(100%);
+                transform: translateY(100%);
+      }
+
+      .container {
+        padding-top: 40px;
+        height: calc(100% - 40px);
+      }
+
+      .top-info {
+        font-family: 'Teko', sans-serif;
+        position: absolute;
+        font-size: 20px;
+        top: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        padding: 6px;
+        text-align: center;
+        background-color: #272d2d;
+        color: #ffffff;
+      }
+    </style>
+  </body>
+</html>
+
