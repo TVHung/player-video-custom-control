@@ -17,13 +17,13 @@ form.addEventListener("submit", e => {
   fetch(url)
     .then(response => response.json())
     .then(data => {
-      const { main, name, sys, weather } = data;
+      const { main, name, sys, weather, wind} = data;
+      console.log(data);
       const icon = `https://openweathermap.org/img/wn/${
         weather[0]["icon"]
       }@2x.png`;
       const li = document.createElement("li");
       li.classList.add("city");
-      console.log(weather[0]);
       const markup = `
         <h2 class="city-name" data-name="${name},${sys.country}">
           <span>${name}</span>
@@ -33,6 +33,9 @@ form.addEventListener("submit", e => {
         <figure>
           <img class="city-icon" src=${icon} alt=${weather[0]["main"]}>
           <figcaption>${weather[0]["description"]}</figcaption>
+          <hr>
+          <p>Wind degree: ${wind.deg}</p>
+          <p>Wind speed: ${wind.speed}</p>
         </figure>
       `;
       li.innerHTML = markup;
