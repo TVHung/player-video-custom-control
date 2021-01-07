@@ -48,7 +48,7 @@ ul {
 
 body {
   font: 1rem/1.3 "Roboto", sans-serif;
-  background-image: url("bg.jpg");
+  background-image: url("bg2.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -125,6 +125,26 @@ input[type=text]:focus {
   color: var(--red);
 }
 
+.language{
+  padding: 20px 0px 20px 0px;
+}
+
+.history h5{
+  padding: 60px 0px 10px 0px;
+  color: var(--red);
+}
+.history hr{
+  background-color: var(--text_light);
+}
+.history ul{
+  list-style-type: none;
+  padding-top: 0px; 
+}
+
+.history ul li{
+  padding-top: 10px; 
+}
+
 
 /* SECTION #2
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
@@ -183,7 +203,7 @@ input[type=text]:focus {
 }
 
 .ajax-section .city-temp {
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: bold;
   margin-top: 10px;
   color: var(--text_dark);
