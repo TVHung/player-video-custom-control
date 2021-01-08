@@ -31,8 +31,9 @@ form.addEventListener("submit", e => {
 					<span>${name}</span>
 					<sup>${sys.country}</sup>
 				</h2>
+				<hr>
 				<div class="city-temp">
-					${Math.round(main.temp)}<sup>°C</sup> 
+					${Math.round(main.temp)}<sup>°C</sup> | 
 					${(Math.round(main.temp)*1.8 + 32).toFixed(1)}<sup>°F</sup>
 				</div>
 				<figure>
@@ -40,6 +41,9 @@ form.addEventListener("submit", e => {
 					<figcaption>${weather[0]["description"]}</figcaption>
 					<hr>
 					<p>Time Zone: ${data.timezone}</p>
+					<p>Temp max: ${main.temp_max}</P> 
+					<p>Temp min: ${main.temp_min}</p>
+					<p>Humidity: ${main.humidity}%</P>
 					<p>Wind speed: ${(Math.round(wind.speed) * 3.6).toFixed(1)} km/h</p>
 				</figure>
 			`;
@@ -51,7 +55,7 @@ form.addEventListener("submit", e => {
 			history.appendChild(li2);
 		})
 		.catch(() => {
-			message.textContent = "Can't find this city, try again!";
+			message.textContent = "Can't find this area, try again!";
 	});
 
 	message.textContent = "";
