@@ -3,7 +3,6 @@ const input = document.querySelector(".top-banner input");
 const message = document.querySelector(".top-banner .message");
 const history = document.querySelector(".top-banner .history-list");
 const list = document.querySelector(".ajax-section .cities");
-var d = new Date();
 
 //key weather
 const apiKey = "c00f988354e97a7199ab055283b2b424";
@@ -13,6 +12,7 @@ form.addEventListener("submit", e => {
 	const listItems = list.querySelectorAll(".ajax-section .city");
 	const inputVal = input.value;
 	const language = $("#lang-list option:selected").val();
+	var d = new Date();
 	var strDate = d.getDate() + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
 	const url = `https://api.openweathermap.org/data/2.5/weather?q=${inputVal}&appid=${apiKey}&units=metric&lang=${language}`;
 
