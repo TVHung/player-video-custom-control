@@ -44,7 +44,9 @@ img {
 ul {
   list-style: none;
 }
-
+h3 {
+    font-size: 1.3rem;
+}
 body {
   font: 1rem/1.3 "Roboto", sans-serif;
   background-image: url("bg2.png");
@@ -103,7 +105,6 @@ input[type=text]:focus {
   font-weight: bold;
   letter-spacing: 0.1em;
   padding: 15px 20px;
- /* margin-left: 15px;*/
   border-radius: 5px;
   background: #4CAF50;
   transition: background 0.3s ease-in-out;

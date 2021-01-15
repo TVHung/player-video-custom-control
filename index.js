@@ -4,9 +4,8 @@ const input = document.querySelector(".top-banner input");
 const message = document.querySelector(".top-banner .message");
 const history = document.querySelector(".top-banner .history-list");
 const list = document.querySelector(".ajax-section .cities");
-
-console.log(form);
-console.log(form2);
+const d = new Date();
+const strDate = d.getDate() + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
 //key weather
 const apiKey = "c00f988354e97a7199ab055283b2b424";
 
@@ -21,7 +20,6 @@ form.addEventListener("submit", e => {
 		.then(response => response.json())
 		.then(data => {
 			const { main, name, sys, weather, wind} = data;
-			console.log(data);
 			const name1 = weather[0]["icon"];
 			const nameIcon = name1.slice(0, 2) + "d";
 			const icon = `https://openweathermap.org/img/wn/${nameIcon}@2x.png`;
@@ -34,6 +32,7 @@ form.addEventListener("submit", e => {
 					<span>${name}</span>
 					<sup>${sys.country}</sup>
 				</h2>
+				<h3><strong>${strDate}</strong></h3>
 				<hr>
 				<div class="city-temp">
 					${Math.round(main.temp)}<sup>°C</sup> | 
@@ -90,6 +89,7 @@ form2.addEventListener("submit", e => {
 					<span>${name}</span>
 					<sup>${sys.country}</sup>
 				</h2>
+        <h3><strong>${strDate}</strong></h3>  
 				<hr>
 				<div class="city-temp">
 					${Math.round(main.temp)}<sup>°C</sup> | 
