@@ -103,10 +103,14 @@ input[type=text]:focus {
   font-weight: bold;
   letter-spacing: 0.1em;
   padding: 15px 20px;
-  margin-left: 15px;
+ /* margin-left: 15px;*/
   border-radius: 5px;
   background: #4CAF50;
   transition: background 0.3s ease-in-out;
+}
+
+.btnSearch2 {
+  width: 100%;
 }
 
 .top-banner form button:hover {
