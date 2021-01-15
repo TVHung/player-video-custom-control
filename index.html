@@ -374,19 +374,19 @@
     "Åland Islands": {},
     }
   window.onload = function () {
-    var lang_list = document.getElementById("lang-list"),
+    var country_list = document.getElementById("country-list"),
     city_list = document.getElementById("city-list");
     for (var country in countryObject) {
-      lang_list.options[lang_list.options.length] = new Option(country, country);
+      country_list.options[country_list.options.length] = new Option(country, country);
       }
-    lang_list.onchange = function () {
+    country_list.onchange = function () {
       city_list.length = 1; // remove all options bar first
       if (this.selectedIndex < 1) return; // done
       for (var city in countryObject[this.value]) {
         city_list.options[city_list.options.length] = new Option(city, city);
         }
       }
-      lang_list.onchange(); // reset in case page is reloaded
+      country_list.onchange(); // reset in case page is reloaded
     }
   </script>
 
@@ -401,6 +401,7 @@
         <div class="container">
           <h1 class="heading">Searching for weather information in an area</h1>
             
+
             <h4>Choose a language to display:</h4>
             <div class="center language">
             <select name="lang-list" id="lang-list" class="custom-select">
@@ -464,7 +465,7 @@
             <div class="center language">
             </br></br><h4>Search by country</h4>
             Country: 
-            <select name="country" id="lang-list" class="custom-select">
+            <select name="country" id="country-list" class="custom-select">
               <option value="" selected="selected">Select Country</option>
             </select> </br> </br>
             City:
